@@ -1,4 +1,8 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Livro } from '../services/livros.service';
+import { FavoritosService } from '../services/favoritos.service';
+import { DestaqueFavoritoDirective } from '../diretivas/destaque-favorito.directive';
+import { CapaAlternativaDirective } from '../diretivas/capa-alternativa.directive';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
@@ -9,27 +13,22 @@ import {
   selector: 'app-favoritos',
   templateUrl: './favoritos.page.html',
   imports: [
+    DestaqueFavoritoDirective, CapaAlternativaDirective,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
     IonButton, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
     RouterLink,
   ],
 })
 export class FavoritosPage {
-  favoritos: any[] = [];
-
-  constructor(private cd: ChangeDetectorRef) {}
-
-  // roda toda vez que a página aparece, assim a lista fica sempre atualizada
+  favoritos: Livro[] = [];
+  erro = '';
+  constructor(private salvos: FavoritosService) {}
   ionViewWillEnter() {
-    const lista = JSON.parse(localStorage.getItem('favoritos') || '[]');
-    // ignora favoritos antigos salvos em formato errado
-    this.favoritos = lista.filter((f: any) => f.key && f.title);
-    this.cd.detectChanges();
+    try { this.favoritos = this.salvos.listar(); this.erro = ''; }
+    catch { this.erro = 'Não foi possível ler os favoritos deste navegador.'; }
   }
-
   remover(key: string) {
-    this.favoritos = this.favoritos.filter((f) => f.key !== key);
-    localStorage.setItem('favoritos', JSON.stringify(this.favoritos));
-    this.cd.detectChanges();
+    try { this.salvos.remover(key); this.ionViewWillEnter(); }
+    catch { this.erro = 'Não foi possível remover o favorito. Tente novamente.'; }
   }
 }
