@@ -25,17 +25,21 @@
     }
   </div>
 
+  @if (carregando[categoria]) { <p class="centro" role="status">Carregando livros...</p> }
+  @else if (erros[categoria]) { <p class="centro" role="alert">Não foi possível carregar esta categoria.</p><ion-button (click)="carregar(categoria)">Tentar novamente</ion-button> }
+  @else {
   @for (livro of livrosPorCategoria[categoria]; track livro.key) {
     <ion-card button [routerLink]="['/detalhes', livro.key.replace('/works/', '')]">
       @if (livro.cover_id) {
-        <img class="capa-grande" [src]="'https://covers.openlibrary.org/b/id/' + livro.cover_id + '-L.jpg'" [alt]="livro.title" />
+        <img appCapaAlternativa class="capa-grande" [src]="'https://covers.openlibrary.org/b/id/' + livro.cover_id + '-L.jpg?default=false'" [alt]="livro.title" />
       }
       <ion-card-header>
-        <ion-card-subtitle>{{ livro.authors?.[0]?.name ?? 'Autor desconhecido' }}</ion-card-subtitle>
+        <ion-card-subtitle>{{ (livro.authors?.[0]?.name ?? 'Autor desconhecido') | uppercase }}</ion-card-subtitle>
         <ion-card-title>{{ livro.title }}</ion-card-title>
       </ion-card-header>
     </ion-card>
   } @empty {
-    <p class="centro">Carregando livros...</p>
+    <p class="centro">Nenhum livro encontrado nesta categoria.</p>
+  }
   }
 </ion-content>
