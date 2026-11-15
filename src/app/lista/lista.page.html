@@ -8,13 +8,17 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-searchbar placeholder="Filtrar por título ou autor" (ionInput)="filtrar($event)"></ion-searchbar>
+  <ion-searchbar [(ngModel)]="termo" placeholder="Buscar por título ou autor" (keyup.enter)="buscar()"></ion-searchbar>
+  <ion-button (click)="buscar()">Buscar</ion-button>
 
+  @if (carregando) { <p class="centro" role="status">Buscando livros...</p> }
+  @else if (erro) { <p class="centro" role="alert">Não foi possível consultar a biblioteca. Tente buscar novamente.</p> }
+  @else {
   @for (livro of livros; track livro.key) {
     <ion-card button [routerLink]="['/detalhes', livro.key.replace('/works/', '')]">
       <div class="linha-livro">
         @if (livro.cover_id) {
-          <img class="capa-pequena" [src]="'https://covers.openlibrary.org/b/id/' + livro.cover_id + '-M.jpg'" [alt]="livro.title" />
+          <img appCapaAlternativa class="capa-pequena" [src]="'https://covers.openlibrary.org/b/id/' + livro.cover_id + '-M.jpg?default=false'" [alt]="livro.title" />
         } @else {
           <div class="capa-pequena sem-capa">📖</div>
         }
@@ -23,11 +27,12 @@
             <ion-card-subtitle>{{ livro.authors?.[0]?.name ?? 'Autor desconhecido' }}</ion-card-subtitle>
             <ion-card-title class="titulo-livro">{{ livro.title }}</ion-card-title>
           </ion-card-header>
-          <ion-card-content>Publicado em {{ livro.first_publish_year ?? '—' }}</ion-card-content>
+          <ion-card-content>{{ livro.first_publish_year | anoPublicacao }}</ion-card-content>
         </div>
       </div>
     </ion-card>
   } @empty {
-    <p class="centro">Nenhum livro encontrado. Volte à Home e aguarde os livros carregarem.</p>
+    <p class="centro">Nenhum livro encontrado para esta busca.</p>
+  }
   }
 </ion-content>
