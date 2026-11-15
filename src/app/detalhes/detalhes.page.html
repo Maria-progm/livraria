@@ -8,10 +8,12 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (livro) {
+  @if (carregando) { <p class="centro" role="status">Carregando livro...</p> }
+  @else if (erro) { <p class="centro" role="alert">Não foi possível carregar o livro.</p><ion-button (click)="carregar()">Tentar novamente</ion-button> }
+  @else if (livro) {
     <div class="centro">
       @if (livro.cover_id) {
-        <img class="capa-detalhe" [src]="'https://covers.openlibrary.org/b/id/' + livro.cover_id + '-L.jpg'" [alt]="livro.title" />
+        <img appCapaAlternativa class="capa-detalhe" [src]="'https://covers.openlibrary.org/b/id/' + livro.cover_id + '-L.jpg?default=false'" [alt]="livro.title" />
       }
     </div>
 
@@ -51,16 +53,18 @@
 
     @if (livro.first_sentence) {
       <h3>Primeira frase</h3>
-      <p class="frase">{{ livro.first_sentence }}</p>
+      <p class="frase">{{ expandido ? livro.first_sentence : (livro.first_sentence | resumir:180) }}</p>
+      @if (livro.first_sentence.length > 180) { <ion-button fill="clear" [attr.aria-expanded]="expandido" (click)="expandido = !expandido">{{ expandido ? "Ler menos" : "Ler mais" }}</ion-button> }
     }
 
     @if (livro.subject?.length) {
       <h3>Assuntos</h3>
-      @for (assunto of livro.subject; track assunto) {
+      @for (assunto of (livro.subject | slice:0:8); track assunto) {
         <ion-chip color="primary">{{ assunto }}</ion-chip>
       }
     }
   } @else {
-    <p class="centro">Livro não encontrado. Volte à Home e abra o livro novamente.</p>
+    <p class="centro">Livro não encontrado no catálogo.</p>
   }
+  @if (erroFavoritos) { <p role="alert">{{ erroFavoritos }}</p> }
 </ion-content>

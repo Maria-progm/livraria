@@ -1,4 +1,10 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { SlicePipe } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { ResumirPipe } from '../pipes/resumir.pipe';
+import { LivrosService, Livro } from '../services/livros.service';
+import { FavoritosService } from '../services/favoritos.service';
+import { CapaAlternativaDirective } from '../diretivas/capa-alternativa.directive';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
@@ -9,50 +15,47 @@ import {
   selector: 'app-detalhes',
   templateUrl: './detalhes.page.html',
   imports: [
+    SlicePipe, ResumirPipe, CapaAlternativaDirective,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton,
     IonChip, IonButton,
   ],
 })
 export class DetalhesPage {
   id = '';
-  livro: any = null;
+  livro: Livro | null = null;
   favorito = false;
-
-  constructor(private route: ActivatedRoute, private cd: ChangeDetectorRef) {}
-
-  
+  carregando = true;
+  erro = false;
+  erroFavoritos = '';
+  expandido = false;
+  private consulta?: Subscription;
+  constructor(private route: ActivatedRoute, private api: LivrosService, private salvos: FavoritosService) {}
   ionViewWillEnter() {
-  
     this.id = this.route.snapshot.paramMap.get('id') ?? '';
-    const chave = '/works/' + this.id;
-
-    this.livro = null;
-    const fontes = ['fantasia', 'romance', 'ficcao', 'distopia', 'terror', 'favoritos'];
-    for (const nome of fontes) {
-      const lista = JSON.parse(localStorage.getItem(nome) || '[]');
-      const achado = lista.find((l: any) => l.key === chave);
-      if (achado) {
-        this.livro = achado;
-        break;
-      }
-    }
-
-    const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
-    this.favorito = favoritos.some((f: any) => f.key === chave);
-    this.cd.detectChanges();
+    this.expandido = false;
+    this.erroFavoritos = '';
+    try { this.favorito = this.salvos.contem('/works/' + this.id); }
+    catch { this.erroFavoritos = 'Não foi possível ler os favoritos deste navegador.'; }
+    this.carregar();
   }
-
+  carregar() {
+    this.consulta?.unsubscribe();
+    this.carregando = true;
+    this.erro = false;
+    this.livro = null;
+    this.consulta = this.api.detalhes(this.id).subscribe({
+      next: livro => { this.livro = livro; this.carregando = false; },
+      error: () => { this.erro = true; this.carregando = false; },
+    });
+  }
+  ngOnDestroy() { this.consulta?.unsubscribe(); }
   alternarFavorito() {
-    let lista = JSON.parse(localStorage.getItem('favoritos') || '[]');
-
-    if (this.favorito) {
-      lista = lista.filter((f: any) => f.key !== this.livro.key);
-    } else {
-      lista.push(this.livro);
-    }
-
-    localStorage.setItem('favoritos', JSON.stringify(lista));
-    this.favorito = !this.favorito;
-    this.cd.detectChanges();
+    if (!this.livro) return;
+    try {
+      if (this.salvos.contem(this.livro.key)) this.salvos.remover(this.livro.key);
+      else this.salvos.adicionar(this.livro);
+      this.favorito = this.salvos.contem(this.livro.key);
+      this.erroFavoritos = '';
+    } catch { this.erroFavoritos = 'Não foi possível salvar a alteração nos favoritos deste navegador.'; }
   }
 }
