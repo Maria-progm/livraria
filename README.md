@@ -4,6 +4,13 @@ Aplicativo acadêmico desenvolvido com Ionic 8, Angular 19 standalone e TypeScri
 
 Este repositório é uma cópia do [projeto original de Sara-092](https://github.com/Sara-092/livraria). A conclusão dos requisitos foi integrada à versão de 14/11/2026, incluindo as categorias e o estilo roxo.
 
+# Participantes
+-> Rayana Barbosa de Oliveira Lima - 01811793
+-> Sara Kaylanne da Silva Cavalcanti - 01810269
+-> Manuella Vitória Nascimento de Andrade Morais - 01649495
+-> Maria Clara Damásio Nascimento Silva - 01791642
+-> Maria Beatriz Vieira Varela Braga - 01809610
+
 ## Instalação e execução
 
 Use Node.js 22 e npm. No terminal:
