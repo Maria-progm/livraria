@@ -6,9 +6,13 @@ Este repositório é uma cópia do [projeto original de Sara-092](https://github
 
 # Participantes
 -> Rayana Barbosa de Oliveira Lima - 01811793
+
 -> Sara Kaylanne da Silva Cavalcanti - 01810269
+
 -> Manuella Vitória Nascimento de Andrade Morais - 01649495
+
 -> Maria Clara Damásio Nascimento Silva - 01791642
+
 -> Maria Beatriz Vieira Varela Braga - 01809610
 
 ## Instalação e execução
